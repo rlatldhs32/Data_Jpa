@@ -1,19 +1,40 @@
 package study.datajpa.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
+import javax.persistence.*;
 
 @Entity
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id","username","age"})
 public class Member {
 
     @Id
     @GeneratedValue
+    @Column(name="member_id") //디비는 member_id로 매핑함
     private Long id;
-
     private String username;
+    private int age;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="team_id") //foreing key 이름
+    private Team team;
+
+    public Member(String username){
+        this.username = username;
+    }
+
+    public Member(String usename, int age, Team team) {
+        this.username=username;
+        this.age=age;
+        if(team!=null){
+            changeTeam(team);
+        }
+    }
+
+    public void changeTeam(Team team){
+        this.team = team;
+        team.getMembers().add(this); //팀에 자신등록
+    }
 }
