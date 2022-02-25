@@ -1,40 +1,37 @@
 package study.datajpa.entity;
-
 import lombok.*;
+import study.datajpa.entity.Team;
 
 import javax.persistence.*;
-
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"id","username","age"})
+@ToString(of = {"id", "username", "age"})
 public class Member {
-
     @Id
     @GeneratedValue
-    @Column(name="member_id") //디비는 member_id로 매핑함
+    @Column(name = "member_id")
     private Long id;
     private String username;
     private int age;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="team_id") //foreing key 이름
+    @JoinColumn(name = "team_id")
     private Team team;
-
-    public Member(String username){
-        this.username = username;
+    public Member(String username) {
+        this(username, 0);
     }
-
-    public Member(String usename, int age, Team team) {
-        this.username=username;
-        this.age=age;
-        if(team!=null){
+    public Member(String username, int age) {
+        this(username, age, null);
+    }
+    public Member(String username, int age, Team team) {
+        this.username = username;
+        this.age = age;
+        if (team != null) {
             changeTeam(team);
         }
     }
-
-    public void changeTeam(Team team){
+    public void changeTeam(Team team) {
         this.team = team;
-        team.getMembers().add(this); //팀에 자신등록
+        team.getMembers().add(this);
     }
 }
