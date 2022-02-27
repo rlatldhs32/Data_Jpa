@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
@@ -32,4 +33,16 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value = "select m from Member m left join m.team t",
             countQuery = "select count(m) from Member m") //countQuery로 필요한부분만 가져올 수 있음! 성능최적화
     Page<Member> findByAge1(int age, Pageable pageable);
+
+    //벌크성쿼리
+
+
+    //변경
+    @Modifying(clearAutomatically = true)
+    //왜 에러? -> 업데이트쿼리일때 넣어줌. , JPA 는 영속성을 무시하고 그냥 DB에 넣는것이기때문에, 안맞을 수가 있다.
+    //따라서 bulk 연산 후에는 영속성 컨텍스트를 다 날려버려야한다. em.flush(); 와 em.clear();을 벌크연산 후에 ㄱㄱ 그럴때 그냥
+    @Query("update Member m set m.age = m.age+1 where m.age >=: age")
+    int bulkAgePlus(@Param("age") int age);
+
+
 }
