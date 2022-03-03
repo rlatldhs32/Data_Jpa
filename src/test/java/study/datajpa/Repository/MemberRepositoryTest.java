@@ -14,6 +14,8 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MemberRepositoryTest {
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember(){
@@ -170,4 +175,45 @@ public class MemberRepositoryTest {
         assertThat(resultCount).isEqualTo(3);
     }
 
+    @Test
+    public void findMemberLazy(){
+        //given
+        //member1->team1
+
+        Team teamA = new Team("TeamA");
+        Team teamB = new Team("TeamB");
+
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1= new Member("member1",10,teamA);
+        Member member2= new Member("member2",10,teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+        //when
+        List<Member> members = memberRepository.findAll();
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+        }
+    }
+    
+    @Test
+    public void queryHint() {
+        // given
+        Member member1=new Member("user1",10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+        // when
+        Member findMember = memberRepository.findReadOnlyByUsername("user1"); //이거하면 결국 복사가 되긴함
+        //그래서 그럴려고 만드는게 hibernate에서 만든 힌트임.
+        findMember.setUsername("member2");
+
+        em.flush(); // <<flush 할떄 더티체킹으로 자동변경해주는데, 그럴때도 메모리가 들긴함!
+        // then
+
+    }
 }
