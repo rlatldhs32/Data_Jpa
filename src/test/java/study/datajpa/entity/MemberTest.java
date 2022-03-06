@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import study.datajpa.Repository.MemberRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,6 +20,8 @@ class MemberTest {
 
     @PersistenceContext
     EntityManager em;
+
+    MemberRepository memberRepository;
 
     @Test
     public void testEntity(){
@@ -47,5 +50,16 @@ class MemberTest {
             System.out.println("member = " + member);
             System.out.println("member = " + member.getTeam());
         }
+    }
+
+    @Test
+    public void JpaEventBaseEntity() throws Exception{
+        // given
+        Member member = new Member("member1");
+        memberRepository.save(member);
+
+        // when
+
+        // then
     }
 }
